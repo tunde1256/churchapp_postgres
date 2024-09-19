@@ -570,63 +570,32 @@ exports.getALLQA = async (req, res) => {
 
 
 
-// // get all questions and answers by category
+// // get all questions and answers by categoryconst Category = require('../models/Category'); // Adjust the path as necessary
+
 exports.getAllCategories = async (req, res) => {
     try {
-        const { userId } = req.params; // Get userId from request parameters
-
-        // Ensure userId is provided
-        if (!userId) {
-            return res.status(400).json({ message: 'User ID is required' });
-        }
-
-        // Find all distinct categories for the user's questions
-        const categories = await Question.find({ createdBy: userId }).distinct('category');
+        // Fetch all distinct category names from the Category model
+        const categoryNames = await Category.find().distinct('categoryName');
 
         // Check if any categories are found
-        if (categories.length === 0) {
-            return res.status(404).json({ message: 'No categories found for this user' });
+        if (categoryNames.length === 0) {
+            return res.status(404).json({ message: 'No categories found' });
         }
 
-        // Fetch all questions related to the user and their categories
-        const questions = await Question.find({ createdBy: userId, category: { $in: categories } });
-        const questionIds = questions.map(question => question._id);
-
-        // Fetch all answers for the fetched questions
-        const answers = await Answer.find({ questionId: { $in: questionIds } });
-
-        // Calculate progress for each category
-        const progressByCategory = categories.map(category => {
-            const questionsInCategory = questions.filter(q => q.category === category);
-            const answeredQuestions = answers.filter(a => questionsInCategory.some(q => q._id.equals(a.questionId)));
-
-            const totalQuestions = questionsInCategory.length;
-            const answeredCount = answeredQuestions.length;
-            const progress = totalQuestions > 0 ? (answeredCount / totalQuestions) * 100 : 0;
-
-            return {
-                category,
-                totalQuestions,
-                answeredCount,
-                progress: `${progress.toFixed(2)}%` // Format progress as percentage
-            };
-        });
-
-        // Send the response with data
+        // Return the category names
         return res.status(200).json({
-            message: 'Categories, questions, and answers retrieved successfully',
-            categories,
-            questions,
-            answers,
-            progressByCategory
+            message: 'Categories retrieved successfully',
+            categories: categoryNames
         });
 
     } catch (error) {
         // Log error and send a 500 response
-        logger.error('Error fetching categories, questions, and answers by user:', error);
+        logger.error('Error fetching categories:', error);
         return res.status(500).json({ message: 'Server error' });
     }
 };
+
+
 
 
 exports.getQuestionsAndAnswersFromCategory2 = async (req, res) => {
