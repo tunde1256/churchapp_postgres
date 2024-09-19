@@ -56,7 +56,7 @@ const verifyAdmin = require('../midddleware/verifyAdmin')
  *       500:
  *         description: Error creating user
  */
-Router.post('/user', authenticate, verifyAdmin, userController.createUser);
+Router.post('/user',  userController.createUser);
 
 /**
  * @swagger

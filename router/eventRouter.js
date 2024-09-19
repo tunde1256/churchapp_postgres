@@ -5,7 +5,7 @@ const upload = require('../midddleware/mutter')
 
 
 // Event routes
-Router.post('/event', upload.single('image'),eventRounter.createEvent)
+Router.post('/event', eventRounter.createEvent)
 Router.get('/event', eventRounter.getEvents)
 Router.get('/event/:id', eventRounter.getEventById)
 Router.put('/event/:id', upload.single('image'),eventRounter.updateEvent)
@@ -113,7 +113,7 @@ Router.delete('/event/:id', eventRounter.deleteEvent)
  *       500:
  *         description: Internal Server Error
  */
-Router.post('/event', upload.single('image'), eventRounter.createEvent);
+Router.post('/event',  eventRounter.createEvent);
 
 /**
  * @swagger
@@ -158,7 +158,7 @@ Router.post('/event', upload.single('image'), eventRounter.createEvent);
  *       500:
  *         description: Internal Server Error
  */
-Router.get('/event', eventRounter.getEvents);
+Router.get('/', eventRounter.getEvents);
 
 /**
  * @swagger

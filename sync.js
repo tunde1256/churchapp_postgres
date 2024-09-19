@@ -2,32 +2,74 @@ const bcrypt = require('bcrypt');
 const sequelize = require('./db/db'); // Path to your sequelize instance
 const Branch = require('./model/churchBranche'); // Path to your Branch model
 const Event = require('./model/churchEvent'); // Path to your Event model
+const Notification = require('./model/notificationModel'); // Path to your Notification model
 
+'use strict';
+
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.createTable('notifications', {
+      id: {
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+        type: Sequelize.INTEGER,
+      },
+      title: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      message: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'users', // Assumes there's a users table
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
+      status: {
+        type: Sequelize.STRING,
+        defaultValue: 'unread',
+      },
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+      },
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.dropTable('notifications');
+  },
+};
+
+// Sync database and create tables
 async function syncDatabase() {
-    try {
-        // Sync models with the database
-        await sequelize.sync({ force: true }); // Use { force: true } to drop the table if it exists and create a new one
-        console.log('Database synchronized.');
+  try {
+    await sequelize.authenticate(); // Test the database connection
+    console.log('Connection has been established successfully.');
 
-        // Create a new branch
-        const newBranch = await financial_church.create({
-            name: 'Main Branch',
-            location: '123 Church St',
-        });
-        console.log('New branch created:', newBranch.toJSON());
+    // Sync all models
+    await Branch.sync(); 
+    await Event.sync();
+    await Notification.sync(); // Sync the Notification model
 
-        // Create a new event associated with the new branch
-        const newEvent = await Event.create({
-            title: 'Sunday Service',
-            description: 'Weekly Sunday service at the main branch.',
-            date: new Date(), // Set to the current date or any specific date
-            branchId: newBranch.id, // Associate with the created branch
-        });
-        console.log('New event created:', newEvent.toJSON());
-    } catch (err) {
-        console.error('Error syncing database:', err);
-    }
+    console.log('All models were synchronized successfully.');
+  } catch (error) {
+    console.error('Unable to connect to the database:', error);
+  }
 }
 
-syncDatabase();
-
+syncDatabase(); // Call syncDatabase to sync models with the database

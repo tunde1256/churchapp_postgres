@@ -3,7 +3,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const logger = require('../logger');
 
-// Create a new user
 exports.createUser = async (req, res) => {
     try {
         const { username, email, password, firstName, lastName, phone, role } = req.body;
@@ -27,10 +26,20 @@ exports.createUser = async (req, res) => {
         logger.info('User created successfully', { userId: newUser.id, username: newUser.username });
         res.status(201).json({ message: 'User created successfully', newUser });
     } catch (error) {
-        logger.error('Error creating user', { error: error.message });
-        res.status(500).json({ error: 'An error occurred while creating the user.' });
+        // if (error.name === 'SequelizeValidationError') {
+        //     error.errors.forEach(e => logger.error(`Validation error: ${e.message}`, { field: e.path, value: e.value }));
+        //     res.status(400).json({ error: 'Validation error', details: error.errors.map(e => ({ field: e.path, message: e.message })) });
+        // } else {
+        //     logger.error('Error creating user', { error: error.message });
+        //     res.status(500).json({ error: 'An error occurred while creating the user.' });
+        // }
     }
-};
+}
+
+
+
+
+
 
 // Update an existing user
 exports.updateUser = async (req, res) => {
